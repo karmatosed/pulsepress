@@ -148,7 +148,10 @@ export default function App() {
 		);
 	}
 
-	const { settings, nonces, canManage } = config;
+	const { settings = {}, nonces, canManage } = config;
+	const visibleTabs = canManage
+		? TABS
+		: TABS.filter( ( tab ) => [ 'paste', 'templates' ].includes( tab.name ) );
 
 	return (
 		<div className="pulse-press-root">
@@ -165,8 +168,15 @@ export default function App() {
 			) }
 			{ ! config.aiAvailable && (
 				<Notice status="warning" isDismissible={ false }>
-					{ __( 'Configure WordPress AI before creating digests.', 'pulse-press' ) }{ ' ' }
-					<ExternalLink href={ config.urls.aiSettings }>{ __( 'Open AI settings', 'pulse-press' ) }</ExternalLink>
+					{ __( 'Configure WordPress AI before creating digests.', 'pulse-press' ) }
+					{ config.urls?.aiSettings && (
+						<>
+							{ ' ' }
+							<ExternalLink href={ config.urls.aiSettings }>
+								{ __( 'Open AI settings', 'pulse-press' ) }
+							</ExternalLink>
+						</>
+					) }
 				</Notice>
 			) }
 
@@ -177,11 +187,11 @@ export default function App() {
 				onSelect={ ( name ) => {
 					window.history.replaceState( null, '', tabUrl( name ) );
 				} }
-				tabs={ TABS }
+				tabs={ visibleTabs }
 			>
 				{ ( tab ) => (
 					<div className="pulse-press-panel-stack">
-						{ tab.name === 'connection' && (
+						{ tab.name === 'connection' && canManage && (
 							<ConnectionTab config={ config } canManage={ canManage } nonces={ nonces } />
 						) }
 						{ tab.name === 'team' && canManage && (
@@ -202,7 +212,7 @@ export default function App() {
 						{ tab.name === 'run' && canManage && (
 							<RunTab config={ config } nonces={ nonces } settings={ settings } />
 						) }
-						{ ! canManage && [ 'team', 'meeting', 'posts', 'templates', 'run' ].includes( tab.name ) && (
+						{ ! canManage && [ 'connection', 'team', 'meeting', 'posts', 'run' ].includes( tab.name ) && (
 							<Notice status="info" isDismissible={ false }>
 								{ __( 'You need administrator access for this section.', 'pulse-press' ) }
 							</Notice>

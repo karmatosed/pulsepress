@@ -42,7 +42,7 @@ final class Template_Renderer {
 		if ( '' === $blocks ) {
 			return '';
 		}
-		return (string) do_blocks( $blocks );
+		return wp_kses_post( (string) do_blocks( $blocks ) );
 	}
 
 	/**

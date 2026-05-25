@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Rest;
 
+use Pulse_Press\Security;
 use Pulse_Press\Templates\Template_Registry;
 use Pulse_Press\Templates\Template_Renderer;
 use WP_REST_Request;
@@ -87,6 +88,14 @@ final class Templates_Controller {
 			return new \WP_Error( 'invalid_template', __( 'Unknown template.', 'pulse-press' ), array( 'status' => 400 ) );
 		}
 
+		if ( strlen( $content ) > Security::MAX_TEMPLATE_BYTES ) {
+			return new \WP_Error(
+				'template_too_large',
+				__( 'Template is too large.', 'pulse-press' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		$overrides = \Pulse_Press\Settings::get( 'template_overrides', array() );
 		if ( ! is_array( $overrides ) ) {
 			$overrides = array();
@@ -115,11 +124,19 @@ final class Templates_Controller {
 
 		$override = ! empty( $body['content'] ) ? (string) $body['content'] : '';
 
+		if ( strlen( $override ) > Security::MAX_TEMPLATE_BYTES ) {
+			return new \WP_Error(
+				'template_too_large',
+				__( 'Template is too large.', 'pulse-press' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		$html = Template_Renderer::preview_html( $template_id, $data, $flat, $override );
 
 		return new WP_REST_Response(
 			array(
-				'html' => $html,
+				'html' => wp_kses_post( $html ),
 			)
 		);
 	}

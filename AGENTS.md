@@ -27,6 +27,13 @@ If `build/admin.asset.php` is missing, the admin page shows an error notice.
 3. **GitHub** — `GitHub\Release_Repository` → pipeline with type `release-update` etc.
 4. **Cron** — `Jobs\Digest_Cron` for scheduled team updates
 
+## Security model
+
+- **Administrators (`manage_options`)** — settings, OAuth, digests, template saves, connection tests
+- **Editors (`edit_posts`)** — paste drafts, template preview only; REST `/config` omits secrets, OAuth URLs, and privileged nonces
+- **Validation** — `Pulse_Press\Security` for Slack channel IDs (member list), GitHub `owner/repo`, draft author, schedule frequency, template size cap
+- **Output** — template preview HTML passed through `wp_kses_post` before REST/admin render
+
 ## Conventions
 
 - Hooks over core edits; capability checks on admin/REST (`manage_options` / `edit_posts` as appropriate)

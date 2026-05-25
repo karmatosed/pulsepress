@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Pulse_Press\GitHub;
 
+use Pulse_Press\Security;
+
 /**
  * Minimal GitHub API wrapper.
  */
@@ -25,6 +27,12 @@ final class API_Client {
 	 * @return array<int, array<string, mixed>>|\WP_Error
 	 */
 	public function list_releases( string $owner, string $repo, int $per_page = 10 ) {
+		if ( ! Security::is_valid_github_repo_part( $owner, $repo ) ) {
+			return new \WP_Error( 'pulse_press_github_repo', __( 'Invalid repository.', 'pulse-press' ) );
+		}
+
+		$per_page = min( 100, max( 1, $per_page ) );
+
 		$url = sprintf(
 			'https://api.github.com/repos/%s/%s/releases?per_page=%d',
 			rawurlencode( $owner ),

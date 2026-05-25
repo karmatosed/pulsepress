@@ -163,7 +163,7 @@ final class Settings {
 
 	public static function get_draft_author_id(): int {
 		$id = (int) self::get( 'draft_author_id', 0 );
-		if ( $id > 0 ) {
+		if ( $id > 0 && Security::is_valid_draft_author( $id ) ) {
 			return $id;
 		}
 		$admins = get_users(

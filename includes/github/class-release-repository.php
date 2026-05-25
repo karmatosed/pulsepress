@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Pulse_Press\GitHub;
 
+use Pulse_Press\Security;
 use Pulse_Press\Settings;
 
 /**
@@ -39,6 +40,9 @@ final class Release_Repository {
 				continue;
 			}
 			list( $owner, $repo ) = array_map( 'trim', explode( '/', $repo_slug, 2 ) );
+			if ( ! Security::is_valid_github_repo_part( $owner, $repo ) ) {
+				continue;
+			}
 			$releases = $client->list_releases( $owner, $repo, 20 );
 			if ( is_wp_error( $releases ) ) {
 				return $releases;

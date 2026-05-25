@@ -100,6 +100,7 @@ final class Post_Type_Registry {
 			if ( isset( $subtypes[ $subtype ]['template'] ) ) {
 				return $subtypes[ $subtype ]['template'];
 			}
+			return 'agenda-dev-chat';
 		}
 		return $type_id;
 	}

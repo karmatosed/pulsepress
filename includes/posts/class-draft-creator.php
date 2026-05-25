@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Posts;
 
+use Pulse_Press\Security;
 use Pulse_Press\Settings;
 
 /**
@@ -71,8 +72,8 @@ final class Draft_Creator {
 		update_post_meta( (int) $post_id, '_pulse_press_source', sanitize_key( $source ) );
 		update_post_meta( (int) $post_id, '_pulse_press_generated_at', gmdate( 'c' ) );
 
-		foreach ( $meta_extra as $key => $value ) {
-			update_post_meta( (int) $post_id, '_pulse_press_' . sanitize_key( $key ), $value );
+		foreach ( Security::sanitize_post_meta( $meta_extra ) as $key => $value ) {
+			update_post_meta( (int) $post_id, '_pulse_press_' . $key, $value );
 		}
 
 		return (int) $post_id;

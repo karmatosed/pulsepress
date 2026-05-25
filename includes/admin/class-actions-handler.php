@@ -13,7 +13,9 @@ use Pulse_Press\AI\AI_Gateway;
 use Pulse_Press\Crypto;
 use Pulse_Press\Jobs\Digest_Cron;
 use Pulse_Press\Posts\Pipeline;
+use Pulse_Press\Security;
 use Pulse_Press\Settings;
+use Pulse_Press\Posts\Post_Type_Registry;
 use Pulse_Press\GitHub\API_Client as GitHub_API_Client;
 use Pulse_Press\GitHub\OAuth_Client as GitHub_OAuth_Client;
 use Pulse_Press\GitHub\Release_Repository;
@@ -97,7 +99,9 @@ final class Actions_Handler {
 				if ( ! current_user_can( 'manage_options' ) ) {
 					wp_die( esc_html__( 'Unauthorized.', 'pulse-press' ) );
 				}
-				$channel  = isset( $_POST['meeting_channel'] ) ? sanitize_text_field( wp_unslash( $_POST['meeting_channel'] ) ) : '';
+				$channel = isset( $_POST['meeting_channel'] )
+					? Security::sanitize_slack_channel_id( (string) wp_unslash( $_POST['meeting_channel'] ) )
+					: '';
 				$days     = isset( $_POST['meeting_period_days'] ) ? absint( $_POST['meeting_period_days'] ) : 1;
 				$thread   = isset( $_POST['meeting_thread_ts'] ) ? sanitize_text_field( wp_unslash( $_POST['meeting_thread_ts'] ) ) : '';
 				$label    = isset( $_POST['meeting_label'] ) ? sanitize_text_field( wp_unslash( $_POST['meeting_label'] ) ) : '';
@@ -169,7 +173,10 @@ final class Actions_Handler {
 				if ( ! current_user_can( 'edit_posts' ) ) {
 					wp_die( esc_html__( 'Unauthorized.', 'pulse-press' ) );
 				}
-				$type    = isset( $_POST['paste_type'] ) ? sanitize_key( wp_unslash( $_POST['paste_type'] ) ) : 'team-update';
+				$type = isset( $_POST['paste_type'] ) ? sanitize_key( wp_unslash( $_POST['paste_type'] ) ) : 'team-update';
+				if ( ! Post_Type_Registry::is_valid( $type ) ) {
+					wp_die( esc_html__( 'Invalid content type.', 'pulse-press' ), 400 );
+				}
 				$content = isset( $_POST['paste_content'] ) ? sanitize_textarea_field( wp_unslash( $_POST['paste_content'] ) ) : '';
 				$label   = isset( $_POST['paste_label'] ) ? sanitize_text_field( wp_unslash( $_POST['paste_label'] ) ) : '';
 				$title   = isset( $_POST['paste_title'] ) ? sanitize_text_field( wp_unslash( $_POST['paste_title'] ) ) : '';
@@ -183,7 +190,10 @@ final class Actions_Handler {
 					$args['label'] = $label;
 				}
 				if ( isset( $_POST['paste_agenda_subtype'] ) ) {
-					$args['agenda_subtype'] = sanitize_key( wp_unslash( $_POST['paste_agenda_subtype'] ) );
+					$subtype = sanitize_key( wp_unslash( $_POST['paste_agenda_subtype'] ) );
+					if ( isset( Post_Type_Registry::get_agenda_subtypes()[ $subtype ] ) ) {
+						$args['agenda_subtype'] = $subtype;
+					}
 				}
 				if ( isset( $_POST['paste_product'] ) ) {
 					$args['product'] = sanitize_text_field( wp_unslash( $_POST['paste_product'] ) );
@@ -223,6 +233,9 @@ final class Actions_Handler {
 				break;
 
 			case 'test_github':
+				if ( ! current_user_can( 'manage_options' ) ) {
+					wp_die( esc_html__( 'Unauthorized.', 'pulse-press' ) );
+				}
 				$test = ( new GitHub_API_Client() )->get_user();
 				$redirect = add_query_arg(
 					array(
@@ -235,6 +248,9 @@ final class Actions_Handler {
 				break;
 
 			case 'test_slack':
+				if ( ! current_user_can( 'manage_options' ) ) {
+					wp_die( esc_html__( 'Unauthorized.', 'pulse-press' ) );
+				}
 				$test = ( new API_Client() )->auth_test();
 				$redirect = add_query_arg(
 					array(
@@ -247,6 +263,9 @@ final class Actions_Handler {
 				break;
 
 			case 'test_ai':
+				if ( ! current_user_can( 'manage_options' ) ) {
+					wp_die( esc_html__( 'Unauthorized.', 'pulse-press' ) );
+				}
 				$test = AI_Gateway::smoke_test();
 				$redirect = add_query_arg(
 					array(
@@ -259,7 +278,7 @@ final class Actions_Handler {
 				break;
 
 			default:
-				break;
+				wp_die( esc_html__( 'Unknown action.', 'pulse-press' ), 400 );
 		}
 
 		wp_safe_redirect( $redirect );
@@ -279,13 +298,15 @@ final class Actions_Handler {
 			}
 		}
 		if ( isset( $_POST['team_channels'] ) ) {
-			$updates['team_channels'] = array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['team_channels'] ) );
+			$updates['team_channels'] = Security::sanitize_team_channels( (array) wp_unslash( $_POST['team_channels'] ) );
 		}
 		if ( isset( $_POST['schedule_frequency'] ) ) {
-			$updates['schedule_frequency'] = sanitize_key( wp_unslash( $_POST['schedule_frequency'] ) );
+			$updates['schedule_frequency'] = Security::sanitize_schedule_frequency(
+				sanitize_key( wp_unslash( $_POST['schedule_frequency'] ) )
+			);
 		}
 		if ( isset( $_POST['schedule_weekday'] ) ) {
-			$updates['schedule_weekday'] = absint( $_POST['schedule_weekday'] );
+			$updates['schedule_weekday'] = min( 6, max( 0, absint( $_POST['schedule_weekday'] ) ) );
 		}
 		if ( isset( $_POST['schedule_time'] ) ) {
 			$updates['schedule_time'] = sanitize_text_field( wp_unslash( $_POST['schedule_time'] ) );
@@ -294,7 +315,9 @@ final class Actions_Handler {
 			$updates['team_period_days'] = max( 1, absint( $_POST['team_period_days'] ) );
 		}
 		if ( isset( $_POST['meeting_default_channel'] ) ) {
-			$updates['meeting_default_channel'] = sanitize_text_field( wp_unslash( $_POST['meeting_default_channel'] ) );
+			$updates['meeting_default_channel'] = Security::sanitize_slack_channel_id(
+				(string) wp_unslash( $_POST['meeting_default_channel'] )
+			);
 		}
 		if ( isset( $_POST['meeting_thread_ts'] ) ) {
 			$updates['meeting_thread_ts'] = sanitize_text_field( wp_unslash( $_POST['meeting_thread_ts'] ) );
@@ -309,7 +332,10 @@ final class Actions_Handler {
 			$updates['meeting_end_tag'] = sanitize_text_field( wp_unslash( $_POST['meeting_end_tag'] ) );
 		}
 		if ( isset( $_POST['draft_author_id'] ) ) {
-			$updates['draft_author_id'] = absint( $_POST['draft_author_id'] );
+			$author_id = absint( $_POST['draft_author_id'] );
+			if ( Security::is_valid_draft_author( $author_id ) ) {
+				$updates['draft_author_id'] = $author_id;
+			}
 		}
 		if ( isset( $_POST['category_team_update'] ) ) {
 			$updates['category_team_update'] = absint( $_POST['category_team_update'] );
@@ -327,9 +353,9 @@ final class Actions_Handler {
 			}
 		}
 		if ( isset( $_POST['github_repos'] ) ) {
-			$repos = sanitize_textarea_field( wp_unslash( $_POST['github_repos'] ) );
-			$list  = array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', $repos ) ?: array() ) );
-			$updates['github_repos'] = array_values( $list );
+			$updates['github_repos'] = Security::sanitize_github_repos(
+				sanitize_textarea_field( wp_unslash( $_POST['github_repos'] ) )
+			);
 		}
 		if ( isset( $_POST['release_period_days'] ) ) {
 			$updates['release_period_days'] = max( 1, absint( $_POST['release_period_days'] ) );
