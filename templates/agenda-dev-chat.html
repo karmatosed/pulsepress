@@ -1,0 +1,56 @@
+<!-- wp:group {"className":"pulse-press-post","layout":{"type":"constrained"}} -->
+<div class="wp-block-group pulse-press-post">
+<!-- wp:paragraph -->
+<p><strong>When:</strong> {{meeting_when}}</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Where:</strong> {{meeting_where}}</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Announcements</h2>
+<!-- /wp:heading -->
+
+{{#announcements}}
+<!-- wp:paragraph -->
+<p>{{.}}</p>
+<!-- /wp:paragraph -->
+{{/announcements}}
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Discussions</h2>
+<!-- /wp:heading -->
+
+{{#discussions}}
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">{{title}}</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>{{body}}</p>
+<!-- /wp:paragraph -->
+{{/discussions}}
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Open floor</h2>
+<!-- /wp:heading -->
+
+{{#open_floor}}
+<!-- wp:paragraph -->
+<p>{{.}}</p>
+<!-- /wp:paragraph -->
+{{/open_floor}}
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Links</h2>
+<!-- /wp:heading -->
+
+{{#links}}
+<!-- wp:paragraph -->
+<p>{{.}}</p>
+<!-- /wp:paragraph -->
+{{/links}}
+
+</div>
+<!-- /wp:group -->

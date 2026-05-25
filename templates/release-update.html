@@ -1,0 +1,44 @@
+<!-- wp:group {"className":"pulse-press-post","layout":{"type":"constrained"}} -->
+<div class="wp-block-group pulse-press-post">
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Summary</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>{{summary}}</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Release announcements</h2>
+<!-- /wp:heading -->
+
+{{#releases}}
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">{{name}} {{version}}</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>{{body}}</p>
+<!-- /wp:paragraph -->
+{{/releases}}
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Notes</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>{{notes}}</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Links</h2>
+<!-- /wp:heading -->
+
+{{#links}}
+<!-- wp:paragraph -->
+<p>{{.}}</p>
+<!-- /wp:paragraph -->
+{{/links}}
+
+</div>
+<!-- /wp:group -->

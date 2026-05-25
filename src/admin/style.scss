@@ -1,0 +1,183 @@
+/**
+ * Pulse Press admin — WPDS-aligned tokens (see WP 7.0 boot bundle).
+ */
+.pulse-press-root {
+	--pulse-brand: var(--wpds-color-bg-interactive-brand-strong, var(--wp-admin-theme-color, #3858e9));
+	--pulse-brand-active: var(--wpds-color-bg-interactive-brand-strong-active, #2e49d9);
+	--pulse-surface: var(--wpds-color-bg-surface-neutral-weak, #fff);
+	--pulse-border: var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+	--pulse-radius: var(--wpds-border-radius-lg, 8px);
+	--pulse-text: var(--wpds-color-fg-content-neutral-strong, #1e1e1e);
+	--pulse-text-muted: var(--wpds-color-fg-content-neutral-weak, #646970);
+	max-width: 960px;
+	margin: 0;
+	padding: 24px 20px 40px;
+	color: var(--pulse-text);
+	box-sizing: border-box;
+}
+
+.pulse-press-admin-page #wpcontent {
+	padding-left: 0;
+}
+
+.pulse-press-admin-page #wpbody-content {
+	padding-bottom: 0;
+}
+
+.pulse-press-header {
+	margin-bottom: 24px;
+
+	h1 {
+		font-size: 23px;
+		font-weight: 500;
+		margin: 0 0 8px;
+		line-height: 1.3;
+	}
+
+	p {
+		margin: 0;
+		color: var(--pulse-text-muted);
+		font-size: 14px;
+	}
+}
+
+.pulse-press-tabs {
+	margin-bottom: 20px;
+
+	.components-tab-panel__tabs {
+		border-bottom: 1px solid var(--pulse-border);
+		gap: 4px;
+	}
+
+	.components-tab-panel__tabs-item {
+		border-radius: var(--wpds-border-radius-md, 4px) var(--wpds-border-radius-md, 4px) 0 0;
+	}
+}
+
+.pulse-press-panel-stack {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.pulse-press-card {
+	background: var(--pulse-surface);
+	border: 1px solid var(--pulse-border);
+	border-radius: var(--pulse-radius);
+	padding: 20px 24px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+	h2 {
+		margin: 0 0 4px;
+		font-size: 16px;
+		font-weight: 600;
+	}
+
+	.pulse-press-card__desc {
+		margin: 0 0 16px;
+		color: var(--pulse-text-muted);
+		font-size: 13px;
+	}
+
+	.pulse-press-status {
+		margin-bottom: 20px;
+	}
+
+	.components-base-control,
+	.components-text-control,
+	.components-textarea-control,
+	.components-select-control {
+		margin-bottom: 20px;
+	}
+
+	.components-base-control__label,
+	.components-input-control__label,
+	.components-textarea-control__label,
+	.components-select-control__label {
+		display: block;
+		margin-bottom: 8px;
+	}
+
+	.components-base-control__help,
+	.components-input-control__help {
+		margin-top: 6px;
+	}
+}
+
+.pulse-press-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 12px;
+	border-radius: var(--wpds-border-radius-md, 4px);
+	font-size: 13px;
+	font-weight: 500;
+
+	&--connected {
+		background: var(--wpds-color-bg-surface-success-weak, #edfaef);
+		color: var(--wpds-color-fg-content-success-strong, #007017);
+	}
+
+	&--disconnected {
+		background: var(--wpds-color-bg-surface-neutral-medium, #f0f0f1);
+		color: var(--pulse-text-muted);
+	}
+}
+
+.pulse-press-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 16px;
+}
+
+.pulse-press-run-log {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+
+	th,
+	td {
+		text-align: left;
+		padding: 10px 12px;
+		border-bottom: 1px solid var(--pulse-border);
+	}
+
+	th {
+		font-weight: 600;
+		color: var(--pulse-text-muted);
+	}
+}
+
+.pulse-press-loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 200px;
+}
+
+.pulse-press-channel-select {
+	margin-bottom: 16px;
+
+	select {
+		width: 100%;
+		max-width: 420px;
+		min-height: 160px;
+		border-radius: var(--wpds-border-radius-md, 4px);
+		border: 1px solid var(--pulse-border);
+		padding: 8px;
+	}
+}
+
+.pulse-press-template-preview {
+	border: 1px solid var(--pulse-border);
+	border-radius: var(--pulse-radius);
+	padding: 1rem 1.25rem;
+	background: var(--pulse-surface);
+	max-width: 720px;
+}
+
+.pulse-press-template-editor textarea {
+	font-family: Menlo, Consolas, monospace;
+	font-size: 12px;
+}

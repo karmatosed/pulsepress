@@ -1,0 +1,52 @@
+<!-- wp:group {"className":"pulse-press-post","layout":{"type":"constrained"}} -->
+<div class="wp-block-group pulse-press-post">
+<!-- wp:paragraph -->
+<p>{{intro}}</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">What's New In {{version}}?</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>{{overview}}</p>
+<!-- /wp:paragraph -->
+
+{{#highlights}}
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">{{title}}</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>{{body}}</p>
+<!-- /wp:paragraph -->
+{{/highlights}}
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Other Notable Highlights</h2>
+<!-- /wp:heading -->
+
+{{#other_highlights}}
+<!-- wp:paragraph -->
+<p>{{.}}</p>
+<!-- /wp:paragraph -->
+{{/other_highlights}}
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Changelog</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>{{changelog}}</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Contributors</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>{{contributors}}</p>
+<!-- /wp:paragraph -->
+
+</div>
+<!-- /wp:group -->
