@@ -9,14 +9,63 @@ import {
 	Flex,
 	FlexItem,
 	Notice,
+	CheckboxControl,
 	SelectControl,
 	Spinner,
 	TabPanel,
 	TextareaControl,
 	TextControl,
 } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { postAdminAction, tabUrl } from './utils';
+
+/**
+ * @param {Array<{ id: string, name: string }>} slackChannels Channels from REST config.
+ * @param {string}                                  currentValue  Saved channel ID.
+ */
+function buildSlackChannelSelectOptions( slackChannels, currentValue = '' ) {
+	const options = [
+		{ label: __( '— Select channel —', 'pulse-press' ), value: '' },
+		...( slackChannels || [] ).map( ( ch ) => ( {
+			label: `#${ ch.name }`,
+			value: ch.id,
+		} ) ),
+	];
+	if ( currentValue && ! options.some( ( opt ) => opt.value === currentValue ) ) {
+		options.push( {
+			label: sprintf(
+				/* translators: %s: Slack channel ID */
+				__( 'Saved channel (%s)', 'pulse-press' ),
+				currentValue
+			),
+			value: currentValue,
+		} );
+	}
+	return options;
+}
+
+function SlackChannelField( { config, label, value, onChange, help } ) {
+	const channels = config.slackChannels || [];
+	if ( config.slackConnected && channels.length > 0 ) {
+		return (
+			<SelectControl
+				label={ label }
+				value={ value }
+				options={ buildSlackChannelSelectOptions( channels, value ) }
+				onChange={ onChange }
+				help={ help }
+			/>
+		);
+	}
+	const fallbackHelp =
+		help ||
+		( ! config.slackConnected
+			? __( 'Connect Slack on the Connection tab to choose a channel from a list.', 'pulse-press' )
+			: __( 'No channels returned for this account. Enter a channel ID manually.', 'pulse-press' ) );
+	return (
+		<TextControl label={ label } value={ value } onChange={ onChange } help={ fallbackHelp } />
+	);
+}
 
 if ( window.pulsePressAdmin?.restNonce ) {
 	apiFetch.use( apiFetch.createNonceMiddleware( window.pulsePressAdmin.restNonce ) );
@@ -139,7 +188,7 @@ export default function App() {
 							<TeamTab config={ config } nonces={ nonces } settings={ settings } />
 						) }
 						{ tab.name === 'meeting' && canManage && (
-							<MeetingTab settings={ settings } nonces={ nonces } />
+							<MeetingTab config={ config } settings={ settings } nonces={ nonces } />
 						) }
 						{ tab.name === 'posts' && canManage && (
 							<PostsTab config={ config } nonces={ nonces } settings={ settings } />
@@ -315,10 +364,9 @@ function TeamTab( { config, nonces, settings } ) {
 	const [ weekday, setWeekday ] = useState( String( settings.schedule_weekday ) );
 	const [ time, setTime ] = useState( settings.schedule_time );
 
-	const channelOptions = ( config.slackChannels || [] ).map( ( ch ) => ( {
-		label: `#${ ch.name }`,
-		value: ch.id,
-	} ) );
+	const channelOptions = buildSlackChannelSelectOptions( config.slackChannels || [] ).filter(
+		( opt ) => '' !== opt.value
+	);
 
 	return (
 		<Card
@@ -416,24 +464,78 @@ function TeamTab( { config, nonces, settings } ) {
 	);
 }
 
-function MeetingTab( { settings, nonces } ) {
+function MeetingBoundaryFields( { useTags, setUseTags, startTag, setStartTag, endTag, setEndTag } ) {
+	return (
+		<>
+			<CheckboxControl
+				label={ __( 'Use start and finish tags', 'pulse-press' ) }
+				help={ __(
+					'Only include messages from the latest start tag through the next finish tag in the lookback period. If no start tag is found, the full period is used.',
+					'pulse-press'
+				) }
+				checked={ useTags }
+				onChange={ setUseTags }
+			/>
+			{ useTags && (
+				<>
+					<TextControl
+						label={ __( 'Meeting start tag', 'pulse-press' ) }
+						help={ __( 'Text or emoji marker in a Slack message (e.g. meeting-start, :meeting-start:).', 'pulse-press' ) }
+						value={ startTag }
+						onChange={ setStartTag }
+					/>
+					<TextControl
+						label={ __( 'Meeting finish tag', 'pulse-press' ) }
+						help={ __( 'Optional. Messages after the start tag until this marker; if missing, everything after start is included.', 'pulse-press' ) }
+						value={ endTag }
+						onChange={ setEndTag }
+					/>
+				</>
+			) }
+		</>
+	);
+}
+
+function MeetingTab( { config, settings, nonces } ) {
 	const [ channel, setChannel ] = useState( settings.meeting_default_channel );
 	const [ thread, setThread ] = useState( settings.meeting_thread_ts );
+	const [ useTags, setUseTags ] = useState( !! settings.meeting_use_tags );
+	const [ startTag, setStartTag ] = useState( settings.meeting_start_tag || '' );
+	const [ endTag, setEndTag ] = useState( settings.meeting_end_tag || '' );
 
 	return (
 		<Card
 			title={ __( 'Meeting updates', 'pulse-press' ) }
 			description={ __( 'Defaults for fetching a channel or thread backscroll from the Run tab.', 'pulse-press' ) }
 		>
-			<TextControl label={ __( 'Default channel ID', 'pulse-press' ) } value={ channel } onChange={ setChannel } />
+			<SlackChannelField
+				config={ config }
+				label={ __( 'Default channel', 'pulse-press' ) }
+				value={ channel }
+				onChange={ setChannel }
+			/>
 			<TextControl label={ __( 'Default thread timestamp', 'pulse-press' ) } value={ thread } onChange={ setThread } />
+			<MeetingBoundaryFields
+				useTags={ useTags }
+				setUseTags={ setUseTags }
+				startTag={ startTag }
+				setStartTag={ setStartTag }
+				endTag={ endTag }
+				setEndTag={ setEndTag }
+			/>
 			<div className="pulse-press-actions">
 				<Button
 					variant="primary"
 					onClick={ () =>
 						postAdminAction(
 							'save_settings',
-							{ meeting_default_channel: channel, meeting_thread_ts: thread },
+							{
+								meeting_default_channel: channel,
+								meeting_thread_ts: thread,
+								meeting_use_tags: useTags ? '1' : '0',
+								meeting_start_tag: startTag,
+								meeting_end_tag: endTag,
+							},
 							nonces.save_settings
 						)
 					}
@@ -571,6 +673,9 @@ function RunTab( { config, nonces, settings } ) {
 	const [ days, setDays ] = useState( '1' );
 	const [ thread, setThread ] = useState( settings.meeting_thread_ts );
 	const [ label, setLabel ] = useState( '' );
+	const [ useTags, setUseTags ] = useState( !! settings.meeting_use_tags );
+	const [ startTag, setStartTag ] = useState( settings.meeting_start_tag || '' );
+	const [ endTag, setEndTag ] = useState( settings.meeting_end_tag || '' );
 	const [ releaseDays, setReleaseDays ] = useState( String( settings.release_period_days || 7 ) );
 
 	return (
@@ -586,10 +691,23 @@ function RunTab( { config, nonces, settings } ) {
 				</div>
 			</Card>
 			<Card title={ __( 'Run meeting digest', 'pulse-press' ) }>
-				<TextControl label={ __( 'Channel ID', 'pulse-press' ) } value={ channel } onChange={ setChannel } />
+				<SlackChannelField
+					config={ config }
+					label={ __( 'Channel', 'pulse-press' ) }
+					value={ channel }
+					onChange={ setChannel }
+				/>
 				<TextControl label={ __( 'Period (days)', 'pulse-press' ) } type="number" min={ 1 } value={ days } onChange={ setDays } />
 				<TextControl label={ __( 'Thread TS (optional)', 'pulse-press' ) } value={ thread } onChange={ setThread } />
 				<TextControl label={ __( 'Label (optional)', 'pulse-press' ) } value={ label } onChange={ setLabel } />
+				<MeetingBoundaryFields
+					useTags={ useTags }
+					setUseTags={ setUseTags }
+					startTag={ startTag }
+					setStartTag={ setStartTag }
+					endTag={ endTag }
+					setEndTag={ setEndTag }
+				/>
 				<div className="pulse-press-actions">
 					<Button
 						variant="secondary"
@@ -601,6 +719,9 @@ function RunTab( { config, nonces, settings } ) {
 									meeting_period_days: days,
 									meeting_thread_ts: thread,
 									meeting_label: label,
+									meeting_use_tags: useTags ? '1' : '0',
+									meeting_start_tag: startTag,
+									meeting_end_tag: endTag,
 								},
 								nonces.run_meeting
 							)

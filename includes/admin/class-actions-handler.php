@@ -97,11 +97,12 @@ final class Actions_Handler {
 				if ( ! current_user_can( 'manage_options' ) ) {
 					wp_die( esc_html__( 'Unauthorized.', 'pulse-press' ) );
 				}
-				$channel = isset( $_POST['meeting_channel'] ) ? sanitize_text_field( wp_unslash( $_POST['meeting_channel'] ) ) : '';
-				$days    = isset( $_POST['meeting_period_days'] ) ? absint( $_POST['meeting_period_days'] ) : 1;
-				$thread  = isset( $_POST['meeting_thread_ts'] ) ? sanitize_text_field( wp_unslash( $_POST['meeting_thread_ts'] ) ) : '';
-				$label   = isset( $_POST['meeting_label'] ) ? sanitize_text_field( wp_unslash( $_POST['meeting_label'] ) ) : '';
-				$result  = Digest_Cron::run_meeting_digest( $channel, max( 1, $days ), $thread, $label );
+				$channel  = isset( $_POST['meeting_channel'] ) ? sanitize_text_field( wp_unslash( $_POST['meeting_channel'] ) ) : '';
+				$days     = isset( $_POST['meeting_period_days'] ) ? absint( $_POST['meeting_period_days'] ) : 1;
+				$thread   = isset( $_POST['meeting_thread_ts'] ) ? sanitize_text_field( wp_unslash( $_POST['meeting_thread_ts'] ) ) : '';
+				$label    = isset( $_POST['meeting_label'] ) ? sanitize_text_field( wp_unslash( $_POST['meeting_label'] ) ) : '';
+				$boundary = Settings::meeting_boundary_options_from_post( wp_unslash( $_POST ) );
+				$result   = Digest_Cron::run_meeting_digest( $channel, max( 1, $days ), $thread, $label, $boundary );
 				if ( is_wp_error( $result ) ) {
 					$redirect = add_query_arg(
 						array(
@@ -297,6 +298,15 @@ final class Actions_Handler {
 		}
 		if ( isset( $_POST['meeting_thread_ts'] ) ) {
 			$updates['meeting_thread_ts'] = sanitize_text_field( wp_unslash( $_POST['meeting_thread_ts'] ) );
+		}
+		if ( isset( $_POST['meeting_use_tags'] ) ) {
+			$updates['meeting_use_tags'] = (bool) absint( $_POST['meeting_use_tags'] );
+		}
+		if ( isset( $_POST['meeting_start_tag'] ) ) {
+			$updates['meeting_start_tag'] = sanitize_text_field( wp_unslash( $_POST['meeting_start_tag'] ) );
+		}
+		if ( isset( $_POST['meeting_end_tag'] ) ) {
+			$updates['meeting_end_tag'] = sanitize_text_field( wp_unslash( $_POST['meeting_end_tag'] ) );
 		}
 		if ( isset( $_POST['draft_author_id'] ) ) {
 			$updates['draft_author_id'] = absint( $_POST['draft_author_id'] );

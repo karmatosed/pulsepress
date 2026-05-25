@@ -129,12 +129,13 @@ final class Digest_Cron {
 	}
 
 	/**
+	 * @param array<string, mixed> $boundary_tags Optional use_tags, start_tag, end_tag.
 	 * @return int|\WP_Error
 	 */
-	public static function run_meeting_digest( string $channel_id, int $period_days, string $thread_ts = '', string $label = '' ) {
+	public static function run_meeting_digest( string $channel_id, int $period_days, string $thread_ts = '', string $label = '', array $boundary_tags = array() ) {
 		wp_set_current_user( Settings::get_draft_author_id() );
 
-		$fetch = Channel_Repository::fetch_meeting( $channel_id, $period_days, $thread_ts );
+		$fetch = Channel_Repository::fetch_meeting( $channel_id, $period_days, $thread_ts, $boundary_tags );
 		if ( is_wp_error( $fetch ) ) {
 			return $fetch;
 		}

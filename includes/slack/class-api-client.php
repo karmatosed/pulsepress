@@ -118,11 +118,17 @@ final class API_Client {
 	/**
 	 * @return string|\WP_Error
 	 */
-	public function fetch_channel_history_text( string $channel_id, float $oldest, float $latest ): string {
+	/**
+	 * @param array<string, mixed> $boundary_tags Optional use_tags, start_tag, end_tag.
+	 * @return string|\WP_Error
+	 */
+	public function fetch_channel_history_text( string $channel_id, float $oldest, float $latest, array $boundary_tags = array() ): string {
 		$raw_messages = $this->fetch_all_history_messages( $channel_id, $oldest, $latest );
 		if ( is_wp_error( $raw_messages ) ) {
 			return $raw_messages;
 		}
+
+		$raw_messages = Meeting_Boundary::filter_messages( $raw_messages, $boundary_tags );
 
 		$thread_parents = array();
 		foreach ( $raw_messages as $msg ) {

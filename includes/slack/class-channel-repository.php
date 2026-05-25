@@ -59,9 +59,10 @@ final class Channel_Repository {
 	}
 
 	/**
+	 * @param array<string, mixed> $boundary_tags Optional use_tags, start_tag, end_tag.
 	 * @return array{content: string, label: string}|\WP_Error
 	 */
-	public static function fetch_meeting( string $channel_id, int $period_days, string $thread_ts = '' ) {
+	public static function fetch_meeting( string $channel_id, int $period_days, string $thread_ts = '', array $boundary_tags = array() ) {
 		$api    = new API_Client();
 		$latest = microtime( true );
 		$oldest = $latest - ( max( 1, $period_days ) * DAY_IN_SECONDS );
@@ -78,19 +79,23 @@ final class Channel_Repository {
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
-			$lines = array();
+			$messages = array();
 			foreach ( (array) ( $result['messages'] ?? array() ) as $msg ) {
-				if ( ! is_array( $msg ) ) {
-					continue;
+				if ( is_array( $msg ) ) {
+					$messages[] = $msg;
 				}
-				$text = (string) ( $msg['text'] ?? '' );
-				if ( '' !== $text ) {
-					$lines[] = $text;
+			}
+			$messages = Meeting_Boundary::filter_messages( $messages, $boundary_tags );
+			$lines    = array();
+			foreach ( $messages as $msg ) {
+				$formatted = Message_Formatter::format_message( $msg, 0 );
+				if ( '' !== $formatted ) {
+					$lines[] = $formatted;
 				}
 			}
 			$content = implode( "\n", $lines );
 		} else {
-			$content = $api->fetch_channel_history_text( $channel_id, $oldest, $latest );
+			$content = $api->fetch_channel_history_text( $channel_id, $oldest, $latest, $boundary_tags );
 			if ( is_wp_error( $content ) ) {
 				return $content;
 			}

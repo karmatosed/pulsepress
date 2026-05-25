@@ -36,6 +36,9 @@ final class Settings {
 			'team_period_days'         => 7,
 			'meeting_default_channel'  => '',
 			'meeting_thread_ts'        => '',
+			'meeting_use_tags'         => false,
+			'meeting_start_tag'        => '',
+			'meeting_end_tag'          => '',
 			'draft_author_id'          => (int) get_current_user_id(),
 			'category_team_update'     => 0,
 			'category_meeting_update'  => 0,
@@ -79,6 +82,9 @@ final class Settings {
 			'team_period_days'         => 7,
 			'meeting_default_channel'  => '',
 			'meeting_thread_ts'        => '',
+			'meeting_use_tags'         => false,
+			'meeting_start_tag'        => '',
+			'meeting_end_tag'          => '',
 			'draft_author_id'          => 0,
 			'category_team_update'     => 0,
 			'category_meeting_update'  => 0,
@@ -120,6 +126,39 @@ final class Settings {
 	public static function is_slack_connected(): bool {
 		$token = self::get( 'slack_token', '' );
 		return is_string( $token ) && '' !== $token;
+	}
+
+	/**
+	 * Meeting digest boundary tags from settings.
+	 *
+	 * @return array{use_tags: bool, start_tag: string, end_tag: string}
+	 */
+	public static function meeting_boundary_options(): array {
+		return array(
+			'use_tags'  => (bool) self::get( 'meeting_use_tags', false ),
+			'start_tag' => sanitize_text_field( (string) self::get( 'meeting_start_tag', '' ) ),
+			'end_tag'   => sanitize_text_field( (string) self::get( 'meeting_end_tag', '' ) ),
+		);
+	}
+
+	/**
+	 * @param array<string, mixed> $post Raw POST overrides for a single run.
+	 * @return array{use_tags: bool, start_tag: string, end_tag: string}
+	 */
+	public static function meeting_boundary_options_from_post( array $post ): array {
+		$options = self::meeting_boundary_options();
+
+		if ( array_key_exists( 'meeting_use_tags', $post ) ) {
+			$options['use_tags'] = (bool) absint( $post['meeting_use_tags'] );
+		}
+		if ( isset( $post['meeting_start_tag'] ) ) {
+			$options['start_tag'] = sanitize_text_field( (string) $post['meeting_start_tag'] );
+		}
+		if ( isset( $post['meeting_end_tag'] ) ) {
+			$options['end_tag'] = sanitize_text_field( (string) $post['meeting_end_tag'] );
+		}
+
+		return $options;
 	}
 
 	public static function get_draft_author_id(): int {
