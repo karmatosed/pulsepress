@@ -9,6 +9,13 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Slack;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
+use Pulse_Press\Security;
+
 /**
  * Builds normalized text from Slack channels.
  */
@@ -20,6 +27,14 @@ final class Channel_Repository {
 	 * @return array{content: string, channels: array<int, array<string, string>>}|\WP_Error
 	 */
 	public static function fetch_team_period( array $channel_ids, int $period_days ) {
+		$channel_ids = Security::sanitize_team_channels( $channel_ids );
+		if ( empty( $channel_ids ) ) {
+			return new \WP_Error(
+				'pulse_press_no_channels',
+				__( 'No valid Slack channels selected. Direct messages are not supported.', 'pulse-press' )
+			);
+		}
+
 		$api    = new API_Client();
 		$latest = microtime( true );
 		$oldest = $latest - ( max( 1, $period_days ) * DAY_IN_SECONDS );
@@ -63,6 +78,14 @@ final class Channel_Repository {
 	 * @return array{content: string, label: string}|\WP_Error
 	 */
 	public static function fetch_meeting( string $channel_id, int $period_days, string $thread_ts = '', array $boundary_tags = array() ) {
+		$channel_id = Security::sanitize_slack_channel_id( $channel_id );
+		if ( '' === $channel_id ) {
+			return new \WP_Error(
+				'pulse_press_invalid_channel',
+				__( 'Select a valid Slack channel. Direct messages are not supported.', 'pulse-press' )
+			);
+		}
+
 		$api    = new API_Client();
 		$latest = microtime( true );
 		$oldest = $latest - ( max( 1, $period_days ) * DAY_IN_SECONDS );

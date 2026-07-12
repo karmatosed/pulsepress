@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Templates;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 /**
  * Renders block-serialized templates with Mustache-style placeholders.
  */

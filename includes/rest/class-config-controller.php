@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Rest;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 use Pulse_Press\AI\AI_Gateway;
 use Pulse_Press\Posts\Post_Type_Registry;
 use Pulse_Press\Settings;

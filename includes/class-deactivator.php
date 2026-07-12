@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 /**
  * Plugin deactivation.
  */

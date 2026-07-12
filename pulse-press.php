@@ -3,8 +3,8 @@
  * Plugin Name:       Pulse Press
  * Plugin URI:        https://github.com/karmatosed/pulsepress
  * Description:       Turn Slack, GitHub, and pasted content into formatted WordPress draft posts using WordPress AI.
- * Version:           1.1.0
- * Requires at least: 6.9
+ * Version:           1.1.1
+ * Requires at least: 7.0
  * Requires PHP:      7.4
  * Author:            Pulse Press
  * License:           GPL-2.0-or-later
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PULSE_PRESS_VERSION', '1.1.0' );
+define( 'PULSE_PRESS_VERSION', '1.1.1' );
 define( 'PULSE_PRESS_FILE', __FILE__ );
 define( 'PULSE_PRESS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PULSE_PRESS_URL', plugin_dir_url( __FILE__ ) );

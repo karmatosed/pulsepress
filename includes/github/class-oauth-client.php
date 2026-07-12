@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press\GitHub;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 use Pulse_Press\Crypto;
 use Pulse_Press\Settings;
 
@@ -66,9 +71,6 @@ final class OAuth_Client {
 
 		$client_id     = (string) Settings::get( 'github_client_id', '' );
 		$client_secret = Crypto::decrypt( (string) Settings::get( 'github_client_secret', '' ) );
-		if ( '' === $client_secret ) {
-			$client_secret = (string) Settings::get( 'github_client_secret', '' );
-		}
 
 		if ( '' === $client_id || '' === $client_secret ) {
 			return new \WP_Error( 'pulse_press_github_oauth_config', __( 'GitHub app credentials are not configured.', 'pulse-press' ) );
@@ -137,7 +139,7 @@ final class OAuth_Client {
 			return '';
 		}
 		$plain = Crypto::decrypt( $stored );
-		return '' !== $plain ? $plain : $stored;
+		return $plain;
 	}
 
 	public static function is_connected(): bool {

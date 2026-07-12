@@ -17,7 +17,7 @@ Drafts are created as standard WordPress posts, tagged with a `pulse_press_type`
 
 ## Requirements
 
-- WordPress **6.9+** (AI features: **7.0+** recommended)
+- WordPress **7.0+** with WordPress AI configured
 - PHP **7.4+**
 - WordPress AI configured under **Settings → AI**
 - For Slack: a Slack app with user token scopes (see below)

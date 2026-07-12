@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Admin;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 /**
  * Enqueues React admin bundle and WPDS-related styles.
  */

@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Admin;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 use Pulse_Press\AI\AI_Gateway;
 use Pulse_Press\Crypto;
 use Pulse_Press\Jobs\Digest_Cron;
@@ -175,7 +180,11 @@ final class Actions_Handler {
 				}
 				$type = isset( $_POST['paste_type'] ) ? sanitize_key( wp_unslash( $_POST['paste_type'] ) ) : 'team-update';
 				if ( ! Post_Type_Registry::is_valid( $type ) ) {
-					wp_die( esc_html__( 'Invalid content type.', 'pulse-press' ), 400 );
+					wp_die(
+						esc_html__( 'Invalid content type.', 'pulse-press' ),
+						esc_html__( 'Error', 'pulse-press' ),
+						array( 'response' => 400 )
+					);
 				}
 				$content = isset( $_POST['paste_content'] ) ? sanitize_textarea_field( wp_unslash( $_POST['paste_content'] ) ) : '';
 				$label   = isset( $_POST['paste_label'] ) ? sanitize_text_field( wp_unslash( $_POST['paste_label'] ) ) : '';
@@ -278,7 +287,11 @@ final class Actions_Handler {
 				break;
 
 			default:
-				wp_die( esc_html__( 'Unknown action.', 'pulse-press' ), 400 );
+				wp_die(
+					esc_html__( 'Unknown action.', 'pulse-press' ),
+					esc_html__( 'Error', 'pulse-press' ),
+					array( 'response' => 400 )
+				);
 		}
 
 		wp_safe_redirect( $redirect );

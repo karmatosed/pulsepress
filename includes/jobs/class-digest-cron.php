@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Jobs;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 use Pulse_Press\Settings;
 use Pulse_Press\Slack\Channel_Repository;
 use Pulse_Press\Slack\OAuth_Client;

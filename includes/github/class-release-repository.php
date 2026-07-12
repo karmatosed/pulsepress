@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press\GitHub;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 use Pulse_Press\Security;
 use Pulse_Press\Settings;
 

@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Posts;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 /**
  * Registry of Pulse post format types.
  */
@@ -21,26 +26,31 @@ final class Post_Type_Registry {
 		$types = array(
 			'team-update'     => array(
 				'label'         => __( 'Team updates', 'pulse-press' ),
+				/* translators: %s: date range for the digest period. */
 				'title_pattern' => __( 'Team digest — %s', 'pulse-press' ),
 				'uses_template' => false,
 			),
 			'meeting-update'  => array(
 				'label'         => __( 'Meeting updates', 'pulse-press' ),
+				/* translators: 1: meeting label, 2: date. */
 				'title_pattern' => __( 'Meeting notes — %1$s — %2$s', 'pulse-press' ),
 				'uses_template' => false,
 			),
 			'release-update'  => array(
 				'label'         => __( 'Release announcements', 'pulse-press' ),
+				/* translators: %s: date range for the release period. */
 				'title_pattern' => __( 'Release announcements — %s', 'pulse-press' ),
 				'uses_template' => true,
 			),
 			'whats-new-in'    => array(
 				'label'         => __( "What's new in…", 'pulse-press' ),
+				/* translators: 1: product name, 2: version, 3: date. */
 				'title_pattern' => __( 'What\'s new in %1$s %2$s? (%3$s)', 'pulse-press' ),
 				'uses_template' => true,
 			),
 			'agenda'          => array(
 				'label'         => __( 'Agendas', 'pulse-press' ),
+				/* translators: 1: agenda type label, 2: date. */
 				'title_pattern' => __( '%1$s — %2$s', 'pulse-press' ),
 				'uses_template' => true,
 			),

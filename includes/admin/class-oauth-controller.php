@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Admin;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 use Pulse_Press\GitHub\OAuth_Client as GitHub_OAuth;
 use Pulse_Press\Slack\OAuth_Client as Slack_OAuth;
 

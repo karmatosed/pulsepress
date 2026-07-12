@@ -9,6 +9,13 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Slack;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
+use Pulse_Press\Security;
+
 /**
  * Minimal Slack API wrapper.
  */
@@ -96,6 +103,9 @@ final class API_Client {
 					if ( ! is_array( $ch ) || empty( $ch['id'] ) ) {
 						continue;
 					}
+					if ( ! empty( $ch['is_im'] ) || ! empty( $ch['is_mpim'] ) ) {
+						continue;
+					}
 					$channels[ (string) $ch['id'] ] = array(
 						'id'   => (string) $ch['id'],
 						'name' => (string) ( $ch['name'] ?? $ch['id'] ),
@@ -123,6 +133,13 @@ final class API_Client {
 	 * @return string|\WP_Error
 	 */
 	public function fetch_channel_history_text( string $channel_id, float $oldest, float $latest, array $boundary_tags = array() ): string {
+		if ( ! Security::is_allowed_slack_channel_id( $channel_id ) ) {
+			return new \WP_Error(
+				'pulse_press_slack_channel_not_allowed',
+				__( 'Only Slack channels can be searched. Direct messages are not supported.', 'pulse-press' )
+			);
+		}
+
 		$raw_messages = $this->fetch_all_history_messages( $channel_id, $oldest, $latest );
 		if ( is_wp_error( $raw_messages ) ) {
 			return $raw_messages;

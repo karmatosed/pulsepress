@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Posts;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 /**
  * Builds Gutenberg block content from structured AI output.
  */

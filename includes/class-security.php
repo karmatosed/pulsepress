@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 use Pulse_Press\Slack\API_Client;
 
 /**
@@ -33,6 +38,59 @@ final class Security {
 	}
 
 	/**
+	 * Slack channel IDs use C (public) or G (private channel) prefixes.
+	 * Direct message conversations use D and are not supported.
+	 *
+	 * @param string $channel_id Slack conversation ID.
+	 */
+	public static function is_slack_channel_id_format( string $channel_id ): bool {
+		return '' !== $channel_id && (bool) preg_match( '/^[CG][A-Z0-9]+$/', $channel_id );
+	}
+
+	/**
+	 * @return string[] Member channel IDs from Slack (excludes direct messages).
+	 */
+	public static function allowed_slack_channel_ids(): array {
+		static $cache = null;
+		if ( null !== $cache ) {
+			return $cache;
+		}
+
+		$cache = array();
+		if ( ! Settings::is_slack_connected() ) {
+			return $cache;
+		}
+
+		$list = ( new API_Client() )->list_member_channels();
+		if ( is_wp_error( $list ) ) {
+			return $cache;
+		}
+
+		foreach ( $list as $channel ) {
+			if ( ! empty( $channel['id'] ) ) {
+				$cache[] = (string) $channel['id'];
+			}
+		}
+
+		return $cache;
+	}
+
+	/**
+	 * @param string $channel_id Slack channel ID.
+	 */
+	public static function is_allowed_slack_channel_id( string $channel_id ): bool {
+		if ( ! self::is_slack_channel_id_format( $channel_id ) ) {
+			return false;
+		}
+
+		if ( ! Settings::is_slack_connected() ) {
+			return false;
+		}
+
+		return in_array( $channel_id, self::allowed_slack_channel_ids(), true );
+	}
+
+	/**
 	 * @param string[] $channel_ids Slack channel IDs from admin form.
 	 * @return string[]
 	 */
@@ -45,26 +103,17 @@ final class Security {
 					},
 					$channel_ids
 				),
-				static function ( string $id ): bool {
-					return '' !== $id && preg_match( '/^[A-Z0-9]+$/', $id );
-				}
+				array( self::class, 'is_slack_channel_id_format' )
 			)
 		);
 
 		if ( ! Settings::is_slack_connected() || empty( $channel_ids ) ) {
-			return $channel_ids;
+			return array();
 		}
 
-		$list = ( new API_Client() )->list_member_channels();
-		if ( is_wp_error( $list ) || empty( $list ) ) {
-			return $channel_ids;
-		}
-
-		$allowed = array();
-		foreach ( $list as $channel ) {
-			if ( ! empty( $channel['id'] ) ) {
-				$allowed[] = (string) $channel['id'];
-			}
+		$allowed = self::allowed_slack_channel_ids();
+		if ( empty( $allowed ) ) {
+			return array();
 		}
 
 		return array_values( array_intersect( $channel_ids, $allowed ) );

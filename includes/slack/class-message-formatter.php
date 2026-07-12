@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Slack;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 /**
  * Extracts text, links, attachments, blocks, and files from Slack messages.
  */

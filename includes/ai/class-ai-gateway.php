@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press\AI;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 /**
  * Calls wp_ai_client_prompt for structured summaries.
  */

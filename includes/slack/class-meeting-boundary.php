@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace Pulse_Press\Slack;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
 /**
  * Filters channel messages to the latest start/finish tag pair in a period.
  */

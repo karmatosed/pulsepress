@@ -61,9 +61,12 @@ function SlackChannelField( { config, label, value, onChange, help } ) {
 		help ||
 		( ! config.slackConnected
 			? __( 'Connect Slack on the Connection tab to choose a channel from a list.', 'pulse-press' )
-			: __( 'No channels returned for this account. Enter a channel ID manually.', 'pulse-press' ) );
+			: __( 'No Slack channels returned for this account. Direct messages cannot be used.', 'pulse-press' ) );
 	return (
-		<TextControl label={ label } value={ value } onChange={ onChange } help={ fallbackHelp } />
+		<>
+			<p className="components-base-control__label">{ label }</p>
+			<p className="components-base-control__help">{ fallbackHelp }</p>
+		</>
 	);
 }
 
